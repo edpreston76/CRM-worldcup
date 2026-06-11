@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CRM World Cup Sweepstake 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --pitch: #0B7A3B; --pitch-dark: #075C2C; --cream: #FFF8E7;
+    --gold: #F6C445; --red: #E0312E; --blue: #2456C8; --ink: #14213D;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; font-family: 'Archivo', system-ui, sans-serif;
+    color: var(--cream);
+    background:
+      repeating-linear-gradient(90deg, transparent 0 72px, rgba(255,255,255,0.045) 72px 144px),
+      linear-gradient(160deg, #0E8A44 0%, #075C2C 100%);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 20px 14px 48px; overflow-x: hidden;
+  }
+  h1.wc-title {
+    font-family: 'Archivo Black', sans-serif; text-transform: uppercase;
+    letter-spacing: 0.04em; line-height: 0.95; text-align: center;
+    margin: 8px 0 4px; font-size: clamp(28px, 7vw, 52px);
+    text-shadow: 3px 3px 0 var(--pitch-dark);
+  }
+  .accent { color: var(--gold); }
+  .wc-sub {
+    text-align: center; font-weight: 600; opacity: 0.92; margin: 0 0 20px;
+    font-size: clamp(13px, 3.4vw, 16px); max-width: 560px;
+  }
+  .big-btn {
+    font-family: 'Archivo Black', sans-serif; text-transform: uppercase;
+    letter-spacing: 0.05em; font-size: clamp(15px, 4vw, 21px);
+    background: var(--gold); color: var(--ink); border: 4px solid var(--ink);
+    border-radius: 16px; padding: 15px 30px; cursor: pointer;
+    box-shadow: 0 6px 0 var(--ink); transition: transform 0.08s, box-shadow 0.08s;
+  }
+  .big-btn:hover { transform: translateY(2px); box-shadow: 0 4px 0 var(--ink); }
+  .big-btn:active { transform: translateY(6px); box-shadow: 0 0 0 var(--ink); }
+  .big-btn:focus-visible { outline: 3px dashed var(--cream); outline-offset: 4px; }
+  .big-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .big-btn.red { background: var(--red); color: #fff; }
+  .big-btn.small { font-size: 13px; padding: 9px 16px; border-width: 3px; box-shadow: 0 4px 0 var(--ink); }
+
+  .panel {
+    background: rgba(7,70,33,0.6); border: 3px solid rgba(255,248,231,0.25);
+    border-radius: 20px; padding: 18px; width: 100%; max-width: 940px; text-align: center;
+  }
+
+  .conn-pill {
+    position: fixed; top: 10px; right: 10px; z-index: 60;
+    font-size: 11px; font-weight: 800; letter-spacing: 0.08em;
+    padding: 4px 10px; border-radius: 999px; border: 2px solid var(--ink);
+  }
+  .conn-pill.on { background: var(--gold); color: var(--ink); }
+  .conn-pill.off { background: var(--red); color: #fff; }
+
+  .toast {
+    position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--cream); font-weight: 700; font-size: 14px;
+    padding: 10px 18px; border-radius: 12px; border: 2px solid var(--cream);
+    opacity: 0; transition: opacity 0.25s; z-index: 70; pointer-events: none; max-width: 90vw;
+  }
+  .toast.show { opacity: 1; }
+
+  /* Lobby */
+  .claim-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin: 16px 0; }
+  .claim-card {
+    width: 150px; border-radius: 14px; border: 4px solid var(--ink);
+    background: var(--cream); color: var(--ink); padding: 14px 10px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: 'Archivo Black', sans-serif; box-shadow: 4px 4px 0 rgba(0,0,0,0.35);
+  }
+  .claim-card .nm { font-size: 21px; text-transform: uppercase; }
+  .claim-card .status { font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.06em; }
+  .claim-card.taken { background: #E8E0CC; }
+  .claim-card.mine { outline: 4px solid var(--gold); }
+  .claim-btn {
+    font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase;
+    background: var(--blue); color: #fff; border: 3px solid var(--ink); border-radius: 10px;
+    padding: 7px 14px; cursor: pointer; box-shadow: 0 3px 0 var(--ink);
+  }
+  .claim-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* Order cards */
+  .order-row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin: 18px 0; }
+  .order-card {
+    width: 130px; height: 150px; border-radius: 14px; border: 4px solid var(--ink);
+    background: var(--cream); color: var(--ink);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    font-family: 'Archivo Black', sans-serif; box-shadow: 4px 4px 0 rgba(0,0,0,0.35);
+  }
+  .order-card.hidden-card { background: repeating-linear-gradient(45deg, var(--blue) 0 14px, #1A41A0 14px 28px); color: #fff; }
+  .order-card .pos { font-size: 12px; letter-spacing: 0.1em; opacity: 0.7; }
+  .order-card .nm { font-size: 22px; text-transform: uppercase; }
+  .order-card.just-revealed { animation: popIn 0.45s ease-out; }
+  @keyframes popIn {
+    0% { transform: scale(0.5) rotate(-6deg); opacity: 0; }
+    70% { transform: scale(1.08) rotate(2deg); }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  .spinner-text { font-family: 'Archivo Black', sans-serif; letter-spacing: 0.1em; animation: pulse 0.5s infinite alternate; }
+  @keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
+
+  /* Draft */
+  .round-banner { display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .round-chip {
+    font-family: 'Archivo Black', sans-serif; font-size: 12px; letter-spacing: 0.1em;
+    background: var(--cream); color: var(--ink); border: 3px solid var(--ink);
+    border-radius: 999px; padding: 5px 14px;
+  }
+  .on-clock {
+    font-family: 'Archivo Black', sans-serif; font-size: clamp(20px, 5.5vw, 30px);
+    text-transform: uppercase; text-align: center; margin: 6px 0 14px;
+  }
+  .draw-zone { display: flex; flex-direction: column; align-items: center; gap: 18px; min-height: 400px; justify-content: center; }
+
+  .sticker {
+    width: min(78vw, 270px); min-height: 330px; background: var(--cream);
+    border: 4px solid var(--ink); border-radius: 12px; color: var(--ink);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; padding: 14px 10px; box-shadow: 4px 4px 0 rgba(0,0,0,0.35); text-align: center;
+  }
+  .sticker-flip { animation: flipIn 0.5s ease-out; }
+  @keyframes flipIn {
+    0% { transform: rotateY(90deg) scale(0.8); opacity: 0; }
+    100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+  }
+  .sticker-foil {
+    background: linear-gradient(110deg, #FFF8E7 30%, #FFE9A8 42%, #FFFDF4 50%, #FFE9A8 58%, #FFF8E7 70%);
+    background-size: 220% 100%; animation: foilShine 2.4s linear infinite; border-color: #8A6A00;
+  }
+  .sticker-flip.sticker-foil { animation: flipIn 0.5s ease-out, foilShine 2.4s linear infinite; }
+  @keyframes foilShine { 0% { background-position: 120% 0; } 100% { background-position: -120% 0; } }
+  .sticker-tier {
+    font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: 0.12em;
+    padding: 3px 10px; border-radius: 999px; border: 2px solid var(--ink);
+  }
+  .sticker-flag { font-size: 96px; line-height: 1; }
+  .sticker-name { font-family: 'Archivo Black', sans-serif; text-transform: uppercase; font-size: clamp(17px, 5vw, 24px); line-height: 1.05; }
+  .sticker-rank { font-weight: 800; font-size: 12px; opacity: 0.75; letter-spacing: 0.06em; }
+  .sticker-back-inner {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    width: 100%; min-height: 300px; justify-content: center;
+    background: repeating-linear-gradient(45deg, var(--red) 0 14px, #B8221F 14px 28px);
+    border-radius: 6px; padding: 24px 8px; color: #fff;
+  }
+  .sticker-back-inner .crest { font-size: 56px; }
+  .sticker-back-inner .txt { font-family: 'Archivo Black', sans-serif; font-size: 12px; letter-spacing: 0.18em; }
+
+  .squads { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 22px; width: 100%; max-width: 940px; }
+  @media (max-width: 640px) { .squads { grid-template-columns: repeat(2, 1fr); } }
+  .squad-col { background: rgba(7,70,33,0.6); border: 3px solid rgba(255,248,231,0.25); border-radius: 14px; padding: 10px; }
+  .squad-col.active { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(246,196,69,0.35); }
+  .squad-name { font-family: 'Archivo Black', sans-serif; text-transform: uppercase; font-size: 14px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 4px; }
+  .squad-count { font-size: 11px; background: var(--cream); color: var(--ink); border-radius: 999px; padding: 2px 8px; }
+  .squad-team { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 2px 0; text-align: left; }
+  .squad-team .dot { width: 8px; height: 8px; border-radius: 999px; flex: none; }
+
+  /* Results */
+  .results-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; width: 100%; max-width: 1100px; }
+  @media (max-width: 900px) { .results-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 540px) { .results-grid { grid-template-columns: 1fr; } }
+  .result-col { background: var(--cream); color: var(--ink); border: 4px solid var(--ink); border-radius: 16px; padding: 14px; box-shadow: 5px 5px 0 rgba(0,0,0,0.35); text-align: left; }
+  .result-col h3 { font-family: 'Archivo Black', sans-serif; text-transform: uppercase; margin: 0 0 2px; font-size: 20px; }
+  .result-pos { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; opacity: 0.65; margin-bottom: 8px; }
+  .result-tier-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: 0.1em; margin: 10px 0 4px; display: flex; align-items: center; gap: 6px; }
+  .result-tier-label .swatch { width: 12px; height: 12px; border-radius: 3px; border: 2px solid var(--ink); }
+  .result-team { font-size: 13.5px; font-weight: 600; padding: 1px 0; }
+  .verdict { margin-top: 12px; font-size: 12.5px; font-weight: 600; background: rgba(20,33,61,0.07); border-radius: 10px; padding: 9px; line-height: 1.4; }
+  .verdict .best { display: block; margin-top: 6px; font-weight: 800; }
+
+  .confetti-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 50; }
+  .confetti-piece { position: absolute; top: -20px; border-radius: 2px; animation: confettiFall linear forwards; }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(105vh) rotate(720deg); opacity: 0.9; }
+  }
+
+  .footer-actions { margin-top: 26px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sticker-flip, .order-card.just-revealed, .spinner-text, .sticker-foil, .confetti-piece { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div id="conn" class="conn-pill off">CONNECTING…</div>
+  <h1 class="wc-title">CRM World Cup <span class="accent">Sweepstake</span></h1>
+  <div id="app"></div>
+  <div id="toast" class="toast"></div>
+  <div id="confetti" class="confetti-layer" aria-hidden="true"></div>
+
+<script>
+// ---------------------------------------------------------------------------
+// Note on copy: Alex uses they/them pronouns. All generated copy in this app
+// uses they/them for every player, so nobody is ever misgendered.
+// ---------------------------------------------------------------------------
+const TIERS = {
+  1: { name: "The Heavyweights", color: "#F6C445", text: "#3D2E00", label: "TIER 1" },
+  2: { name: "The Contenders", color: "#E0312E", text: "#FFFFFF", label: "TIER 2" },
+  3: { name: "The Dark Horses", color: "#2456C8", text: "#FFFFFF", label: "TIER 3" },
+  4: { name: "The Dreamers", color: "#0B7A3B", text: "#FFFFFF", label: "TIER 4" },
+};
+const ORDINALS = ["1st", "2nd", "3rd", "4th"];
+
+let state = null;
+let myName = localStorage.getItem("wc_name") || null;
+let myToken = localStorage.getItem("wc_token") || null;
+let prevRevealedCount = 0;
+let prevDrawState = null;
+let ws = null;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// ----------------------------- websocket ----------------------------------
+function connect() {
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  ws = new WebSocket(proto + "://" + location.host);
+  ws.onopen = () => {
+    setConn(true);
+    if (myName && myToken) send({ type: "claim", name: myName, token: myToken });
+  };
+  ws.onclose = () => { setConn(false); setTimeout(connect, 1500); };
+  ws.onerror = () => ws.close();
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === "state") { handleState(msg.state); }
+    if (msg.type === "claimed") {
+      myName = msg.name; myToken = msg.token;
+      localStorage.setItem("wc_name", myName);
+      localStorage.setItem("wc_token", myToken);
+      render();
+    }
+    if (msg.type === "error") toast(msg.msg);
+  };
+}
+function send(obj) { if (ws && ws.readyState === 1) ws.send(JSON.stringify({ ...obj, token: myToken })); }
+function setConn(on) {
+  const el = $("conn");
+  el.className = "conn-pill " + (on ? "on" : "off");
+  el.textContent = on ? "LIVE" : "RECONNECTING…";
+}
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+function handleState(s) {
+  const newReveal = s.phase === "draft" && s.drawState === "revealed" && prevDrawState !== "revealed";
+  if (newReveal && s.currentCard && s.currentCard.tier === 1) confettiBurst();
+  prevDrawState = s.drawState;
+  // if our claim vanished (server reset), forget it
+  if (myName && s.claimedPlayers && !s.claimedPlayers.includes(myName)) {
+    myName = null; myToken = null;
+    localStorage.removeItem("wc_name"); localStorage.removeItem("wc_token");
+  }
+  state = s;
+  render();
+  prevRevealedCount = s.revealedCount;
+}
+
+// ----------------------------- rendering ----------------------------------
+function render() {
+  if (!state) return;
+  const app = $("app");
+  if (state.phase === "lobby") app.innerHTML = renderLobby();
+  if (state.phase === "order") app.innerHTML = renderOrder();
+  if (state.phase === "draft") app.innerHTML = renderDraft();
+  if (state.phase === "results") app.innerHTML = renderResults();
+}
+
+function renderLobby() {
+  const cards = state.players.map((p) => {
+    const taken = state.claimedPlayers.includes(p);
+    const mine = p === myName;
+    return `
+      <div class="claim-card ${taken ? "taken" : ""} ${mine ? "mine" : ""}">
+        <span class="nm">${esc(p)}</span>
+        <span class="status">${mine ? "THAT'S YOU" : taken ? "CLAIMED" : "OPEN"}</span>
+        ${mine
+          ? `<button class="claim-btn" onclick="unclaim()">Release</button>`
+          : `<button class="claim-btn" ${taken || myName ? "disabled" : ""} onclick="claim('${p}')">This is me</button>`}
+      </div>`;
+  }).join("");
+  return `
+    <p class="wc-sub">48 teams. 4 players. 12 teams each, drawn at random with 3 from every tier,
+    so nobody hogs all the heavyweights. Claim your name, then fate decides the order.</p>
+    <div class="panel">
+      <div class="claim-row">${cards}</div>
+      <p style="font-weight:600;font-size:13px;margin:4px 0 16px;">
+        Everyone claims their own name on their own phone. Unclaimed names can be drawn for by anyone.
+      </p>
+      <button class="big-btn" onclick="send({type:'startOrder'})">Decide the order</button>
+    </div>`;
+}
+
+function renderOrder() {
+  const cards = [0, 1, 2, 3].map((i) => {
+    const revealed = i < state.revealedCount;
+    const justNow = revealed && i === state.revealedCount - 1 && state.revealedCount > prevRevealedCount;
+    return `
+      <div class="order-card ${revealed ? "" : "hidden-card"} ${justNow ? "just-revealed" : ""}">
+        <span class="pos">${ORDINALS[i].toUpperCase()} PICK</span>
+        <span class="nm">${revealed ? esc(state.order[i]) : "?"}</span>
+      </div>`;
+  }).join("");
+  const controls = state.revealedCount < 4
+    ? `<button class="big-btn red" onclick="send({type:'revealOrder'})">Reveal ${ORDINALS[state.revealedCount]} pick</button>`
+    : `<div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+        <p style="font-weight:800;margin:0;">The order is locked: ${state.order.map(esc).join(" → ")}</p>
+        <button class="big-btn" onclick="send({type:'startDraft'})">Start the draft</button>
+      </div>`;
+  return `
+    <p class="wc-sub">Tap to reveal who picks 1st, 2nd, 3rd and 4th. No take-backs.</p>
+    <div class="panel"><div class="order-row">${cards}</div>${controls}</div>`;
+}
+
+function stickerBack() {
+  return `<div class="sticker"><div class="sticker-back-inner">
+    <div class="crest">⚽</div><div class="txt">WORLD CUP 2026</div>
+  </div></div>`;
+}
+
+function stickerFront(team, flipping) {
+  const t = TIERS[team.tier];
+  return `
+    <div class="sticker ${flipping ? "sticker-flip" : ""} ${team.tier === 1 ? "sticker-foil" : ""}">
+      <div class="sticker-tier" style="background:${t.color};color:${t.text}">${t.label}</div>
+      <div class="sticker-flag">${team.flag}</div>
+      <div class="sticker-name">${esc(team.name)}</div>
+      <div class="sticker-rank">FIFA RANK #${team.rank}</div>
+    </div>`;
+}
+
+function renderDraft() {
+  const round = Math.floor(state.pickIndex / 4) + 1;
+  const tier = round <= 3 ? 4 : round <= 6 ? 3 : round <= 9 ? 2 : 1;
+  const t = TIERS[tier];
+  const onClock = state.currentPlayer;
+  const iAmOnClock = myName === onClock;
+  const unclaimed = !state.claimedPlayers.includes(onClock);
+  const canDraw = iAmOnClock || unclaimed;
+
+  let zone = "";
+  if (state.drawState === "ready") {
+    zone = stickerBack() + (canDraw
+      ? `<button class="big-btn red" onclick="send({type:'draw'})">${esc(onClock)}, draw your team</button>`
+      : `<div class="spinner-text">WAITING FOR ${esc(onClock).toUpperCase()} TO DRAW…</div>`);
+  } else if (state.drawState === "drawing") {
+    zone = stickerBack() + `<div class="spinner-text">DRAWING FROM ${t.name.toUpperCase()}…</div>`;
+  } else if (state.drawState === "revealed" && state.currentCard) {
+    zone = stickerFront(state.currentCard, true) +
+      `<button class="big-btn" onclick="send({type:'next'})">${state.pickIndex === 47 ? "See final squads" : "Next pick"}</button>`;
+  }
+
+  const squads = state.players.map((p) => {
+    const teams = state.picks[p].map((x) =>
+      `<div class="squad-team"><span class="dot" style="background:${TIERS[x.tier].color}"></span><span>${x.flag} ${esc(x.name)}</span></div>`
+    ).join("");
+    return `<div class="squad-col ${p === onClock ? "active" : ""}">
+      <div class="squad-name">${esc(p)}${p === myName ? " ⭐" : ""} <span class="squad-count">${state.picks[p].length}/12</span></div>
+      ${teams}</div>`;
+  }).join("");
+
+  return `
+    <div class="round-banner">
+      <span class="round-chip">ROUND ${round} OF 12</span>
+      <span class="round-chip" style="background:${t.color};color:${t.text}">${t.label}: ${t.name.toUpperCase()}</span>
+      <span class="round-chip">PICK ${state.pickIndex + 1} / 48</span>
+    </div>
+    <div class="on-clock">On the clock: <span class="accent">${esc(onClock)}</span></div>
+    <div class="draw-zone">${zone}</div>
+    <div class="squads">${squads}</div>`;
+}
+
+// All generated copy uses they/them for every player (Alex uses they/them,
+// and using it for everyone keeps the copy consistent and correct).
+function buildVerdicts() {
+  const stats = state.players.map((p) => {
+    const squad = state.picks[p];
+    const avg = squad.reduce((s, x) => s + x.rank, 0) / squad.length;
+    const best = squad.reduce((b, x) => (x.rank < b.rank ? x : b), squad[0]);
+    return { player: p, avg, best };
+  }).sort((a, b) => a.avg - b.avg);
+  const lines = [
+    "The draw gods smiled. They walk away with the strongest squad on paper, and they will absolutely be mentioning it in standup.",
+    "Quietly dangerous. They missed out on a couple of glamour names but this squad has real teeth.",
+    "A proper mixed bag. They will need a giant-killing or two, but that is what sweepstakes are for.",
+    "Someone had to carry the dreamers. If they lift this trophy, it will be the greatest sweepstake story ever told.",
+  ];
+  const out = {};
+  stats.forEach((s, i) => {
+    out[s.player] = { text: lines[i], best: s.best, avg: Math.round(s.avg), position: i + 1 };
+  });
+  return out;
+}
+
+function renderResults() {
+  const v = buildVerdicts();
+  const cols = state.players.map((p) => {
+    const tiersHtml = [1, 2, 3, 4].map((t) => {
+      const teams = state.picks[p].filter((x) => x.tier === t).sort((a, b) => a.rank - b.rank)
+        .map((x) => `<div class="result-team">${x.flag} ${esc(x.name)} <span style="opacity:0.55">#${x.rank}</span></div>`).join("");
+      return `<div class="result-tier-label"><span class="swatch" style="background:${TIERS[t].color}"></span>${TIERS[t].name.toUpperCase()}</div>${teams}`;
+    }).join("");
+    return `<div class="result-col">
+      <h3>${esc(p)}${p === myName ? " ⭐" : ""}</h3>
+      <div class="result-pos">SQUAD STRENGTH: #${v[p].position} OF 4 · AVG FIFA RANK ${v[p].avg}</div>
+      ${tiersHtml}
+      <div class="verdict">${v[p].text}<span class="best">Best hope: ${v[p].best.flag} ${esc(v[p].best.name)} (rank #${v[p].best.rank})</span></div>
+    </div>`;
+  }).join("");
+  return `
+    <p class="wc-sub">The squads are set. May the best randomly assigned dozen win.
+    Get this in Slack and start the trash talk.</p>
+    <div class="footer-actions" style="margin:0 0 18px;">
+      <button class="big-btn" id="copyBtn" onclick="copyResults()">Copy results for Slack</button>
+      <button class="big-btn red small" onclick="resetDraft()">Reset and run again</button>
+    </div>
+    <div class="results-grid">${cols}</div>`;
+}
+
+// ----------------------------- actions ------------------------------------
+function claim(name) { send({ type: "claim", name }); }
+function unclaim() {
+  send({ type: "unclaim", name: myName });
+  myName = null; myToken = null;
+  localStorage.removeItem("wc_name"); localStorage.removeItem("wc_token");
+  render();
+}
+function resetDraft() {
+  if (confirm("Reset the whole draft for everyone? This cannot be undone.")) send({ type: "reset" });
+}
+
+function copyResults() {
+  const v = buildVerdicts();
+  let out = "🏆 CRM WORLD CUP SWEEPSTAKE 2026 🏆\n";
+  out += "Draft order: " + state.order.map((p, i) => (i + 1) + ". " + p).join("  ") + "\n\n";
+  state.players.forEach((p) => {
+    out += "*" + p.toUpperCase() + "* (avg FIFA rank " + v[p].avg + ")\n";
+    [1, 2, 3, 4].forEach((t) => {
+      const teams = state.picks[p].filter((x) => x.tier === t);
+      out += "Tier " + t + ": " + teams.map((x) => x.flag + " " + x.name).join(", ") + "\n";
+    });
+    out += "Verdict: " + v[p].text + "\n\n";
+  });
+  out += "Whoever holds the world champions takes the glory. Good luck everyone! ⚽";
+  navigator.clipboard.writeText(out).then(
+    () => { $("copyBtn").textContent = "Copied!"; setTimeout(() => { const b = $("copyBtn"); if (b) b.textContent = "Copy results for Slack"; }, 2500); },
+    () => toast("Copy failed - select and copy manually.")
+  );
+}
+
+function confettiBurst() {
+  const layer = $("confetti");
+  const colors = ["#F6C445", "#E0312E", "#2456C8", "#0B7A3B", "#FFFFFF"];
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement("span");
+    s.className = "confetti-piece";
+    const size = 7 + Math.random() * 8;
+    s.style.left = Math.random() * 100 + "%";
+    s.style.background = colors[i % colors.length];
+    s.style.width = size + "px";
+    s.style.height = size * 0.55 + "px";
+    s.style.animationDelay = Math.random() * 0.4 + "s";
+    s.style.animationDuration = 1.6 + Math.random() * 1.4 + "s";
+    layer.appendChild(s);
+    setTimeout(() => s.remove(), 3600);
+  }
+}
+
+connect();
+</script>
+</body>
+</html>
